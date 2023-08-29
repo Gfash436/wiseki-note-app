@@ -12,4 +12,4 @@ final pinnedNotesProvider =
   (ref) => SavedNotesNotifier(),
 );
 
-final favoriteNoteProvider = StateProvider.autoDispose<int>((ref) => -1);
+final favoriteNoteProvider = StateProvider<int>((ref) => -1);

@@ -7,7 +7,7 @@ class NoteTile extends StatelessWidget {
   final String noteTitle;
   final String noteBody;
   final String dateTime;
-  final bool isFavorite;
+  final IconData? favoriteIcon;
   final void Function()? favoriteNote;
   final void Function()? deleteNote;
   final Color tileColor;
@@ -16,7 +16,7 @@ class NoteTile extends StatelessWidget {
     required this.noteBody,
     required this.dateTime,
     required this.tileColor,
-    required this.isFavorite,
+    this.favoriteIcon,
     this.favoriteNote,
     this.deleteNote,
     super.key,
@@ -105,15 +105,15 @@ class NoteTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                GestureDetector(
-                  onTap: favoriteNote,
-                  child: isFavorite
-                      ? const Icon(Icons.favorite, color: kRed)
-                      : Container(),
+                Icon(
+                  favoriteIcon,
+                  color: kRed, // Specify the color you want for the icon
                 ),
                 const SizedBox(width: 10),
-                Text(dateTime,
-                    style: AppStyleSourceSerif4.kFontW3.copyWith(fontSize: 10)),
+                Text(
+                  dateTime,
+                  style: AppStyleSourceSerif4.kFontW3.copyWith(fontSize: 10),
+                ),
               ],
             ),
           ],

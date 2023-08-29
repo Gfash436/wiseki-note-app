@@ -171,24 +171,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 noteBody: note.content,
                                 dateTime: note.dateTime,
                                 tileColor: randomColor,
-                                isFavorite: index ==
-                                    ref
-                                        .watch(favoriteNoteProvider.notifier)
-                                        .state,
                                 favoriteNote: () {
                                   ref
                                       .read(favoriteNoteProvider.notifier)
                                       .state = index;
                                 },
+                                favoriteIcon:
+                                    isFavorite ? Icons.favorite : null,
                                 deleteNote: () {
                                   deleteNoteDialog(
-                                      context: context,
-                                      deleteNote: () {
-                                        ref
-                                            .read(savedNotesProvider.notifier)
-                                            .removeSavedNote(note);
-                                      });
-                                  Navigator.pop(context);
+                                    context: context,
+                                    deleteNote: ref
+                                        .read(pinnedNotesProvider.notifier)
+                                        .removeSavedNote(note),
+                                  );
                                 },
                               );
                             },
@@ -255,15 +251,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   //     });
                                   // Navigator.pop(context);
                                 },
-                                isFavorite: index ==
-                                    ref
-                                        .watch(favoriteNoteProvider.notifier)
-                                        .state,
-                                favoriteNote: () {
-                                  ref
-                                      .read(favoriteNoteProvider.notifier)
-                                      .state = index;
-                                },
+                                // isFavorite: index ==
+                                //     ref
+                                //         .watch(favoriteNoteProvider.notifier)
+                                //         .state,
+                                // favoriteNote: () {
+                                //   ref
+                                //       .read(favoriteNoteProvider.notifier)
+                                //       .state = index;
+                                // },
                               );
                             },
                           )

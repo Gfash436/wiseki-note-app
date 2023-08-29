@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class FavoriteNotifier extends StateNotifier<Widget?> {
-  FavoriteNotifier() : super(null);
+class FavoriteNotifier extends StateNotifier<Set<int>> {
+  FavoriteNotifier() : super(Set<int>());
 
-  void favoriteNote(Widget favNote) {
-    state = favNote;
+  void toggleFavorite(int index) {
+    state.contains(index) ? state.remove(index) : state.add(index);
+  }
+
+  bool isFavorite(int index) {
+    return state.contains(index);
   }
 }

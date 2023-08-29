@@ -1,8 +1,7 @@
-// ignore_for_file: unused_field
-
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wiseki_note_app/src/features/home_screen/domain/models/note_model.dart';
 
 class NotePreferences {
   static const _keySavedNotes = 'savedNotes';
@@ -13,17 +12,19 @@ class NotePreferences {
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
 
-  static Future<void> setSavedNotes(List<Map<String, String>> notes) async {
-    final notesJson = jsonEncode(notes);
-    await _preferences.setString(_keySavedNotes, notesJson);
+  static Future<void> setSavedNotes(List<NoteModel> notes) async {
+    final notesJson = notes.map((note) => note.toJson()).toList();
+    final notesString = jsonEncode(notesJson);
+    await _preferences.setString(_keySavedNotes, notesString);
   }
 
-  static Future<List<Map<String, String>>> getSavedNotes() async {
+  static Future<List<NoteModel>> getSavedNotes() async {
     final notesJson = _preferences.getString(_keySavedNotes);
     if (notesJson != null) {
-      return (jsonDecode(notesJson) as List)
-          .map((note) => Map<String, String>.from(note))
+      final notesList = (jsonDecode(notesJson) as List)
+          .map((note) => NoteModel.fromJson(note))
           .toList();
+      return notesList;
     }
     return [];
   }
