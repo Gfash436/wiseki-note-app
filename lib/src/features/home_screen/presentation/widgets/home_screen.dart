@@ -183,7 +183,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     context: context,
                                     deleteNote: ref
                                         .read(pinnedNotesProvider.notifier)
-                                        .removeSavedNote(note),
+                                        .removePinnedNote(note),
                                   );
                                 },
                               );

@@ -220,7 +220,7 @@ class _AddNewNoteState extends ConsumerState<AddNewNote> {
 
                               final savedNotesNotifier = ref
                                   .read(pinnedNotesProvider.notifier)
-                                  .addSavedNote(NoteModel(
+                                  .addPinnedNote(NoteModel(
                                       title: widget
                                           .noteController.titleController.text,
                                       content: widget
