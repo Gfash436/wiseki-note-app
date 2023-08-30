@@ -42,17 +42,13 @@ class _AddNewNoteState extends ConsumerState<AddNewNote> {
                       final formattedDateTime =
                           DateFormat('hh:mm a | dd-MM-yyyy').format(now);
 
-                      final savedNotesNotifier = ref
-                          .read(savedNotesProvider.notifier)
-                          .addSavedNote(NoteModel(
+                      // Add new saved note
+                      ref.read(savedNotesProvider.notifier).addSavedNote(
+                          NoteModel(
                               title: widget.noteController.titleController.text,
                               content:
                                   widget.noteController.noteController.text,
                               dateTime: formattedDateTime));
-
-                      // // Save the updated notes list to SharedPreferences
-                      // await NotePreferences.setSavedNotes(
-                      //     savedNotesNotifier.state);
 
                       // Clear the text fields
                       widget.noteController.titleController.clear();
@@ -182,7 +178,8 @@ class _AddNewNoteState extends ConsumerState<AddNewNote> {
                                   DateFormat('hh:mm a | dd-MM-yyyy')
                                       .format(now);
 
-                              final savedNotesNotifier = ref
+                              // Add new saved noted
+                              ref
                                   .read(savedNotesProvider.notifier)
                                   .addSavedNote(NoteModel(
                                       title: widget
@@ -190,10 +187,6 @@ class _AddNewNoteState extends ConsumerState<AddNewNote> {
                                       content: widget
                                           .noteController.noteController.text,
                                       dateTime: formattedDateTime));
-
-                              // Save the updated notes list to SharedPreferences
-                              // await NotePreferences.setSavedNotes(
-                              //     savedNotesNotifier.state);
 
                               // Clear the text fields
                               widget.noteController.titleController.clear();
@@ -218,7 +211,8 @@ class _AddNewNoteState extends ConsumerState<AddNewNote> {
                                   DateFormat('hh:mm a | dd-MM-yyyy')
                                       .format(now);
 
-                              final savedNotesNotifier = ref
+                              // Add new pinned note
+                              ref
                                   .read(pinnedNotesProvider.notifier)
                                   .addPinnedNote(NoteModel(
                                       title: widget
@@ -226,11 +220,6 @@ class _AddNewNoteState extends ConsumerState<AddNewNote> {
                                       content: widget
                                           .noteController.noteController.text,
                                       dateTime: formattedDateTime));
-
-                              // Save the updated notes list to SharedPreferences
-
-                              // await NotePreferences.setSavedNotes(
-                              //     savedNotesNotifier.state);
 
                               // Clear the text fields
                               widget.noteController.titleController.clear();

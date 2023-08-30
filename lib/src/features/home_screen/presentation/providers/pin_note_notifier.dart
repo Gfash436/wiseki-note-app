@@ -11,10 +11,14 @@ class PinNotesNotifier extends StateNotifier<List<NoteModel>> {
 
   Future<void> _loadPinnedNotes() async {
     final prefs = await SharedPreferences.getInstance();
-    final notesJson = prefs.getString('pinNote');
+    final notesJson = prefs.getString('notes');
     if (notesJson != null) {
       final List<dynamic> notesData = jsonDecode(notesJson);
-      state = notesData.map((data) => NoteModel.fromJson(data)).toList();
+      state = notesData.map((data) {
+        final note = NoteModel.fromJson(data);
+        // Handle the case where 'isFavorite' key is missing
+        return note.copyWith(isFavorite: data['isFavorite'] ?? false);
+      }).toList();
     }
   }
 
@@ -22,6 +26,18 @@ class PinNotesNotifier extends StateNotifier<List<NoteModel>> {
     final prefs = await SharedPreferences.getInstance();
     final pinNotesJson = jsonEncode(state);
     await prefs.setString('pinNote', pinNotesJson);
+  }
+
+  void toggleFavorite(NoteModel note) {
+    final updatedNotes = state.map((n) {
+      if (n == note) {
+        return n.copyWith(
+            isFavorite: n.isFavorite == null ? true : !n.isFavorite!);
+      }
+      return n;
+    }).toList();
+    state = updatedNotes;
+    _pinNotes(); // Persist the changes
   }
 
   void addPinnedNote(NoteModel note) {

@@ -14,7 +14,11 @@ class SavedNotesNotifier extends StateNotifier<List<NoteModel>> {
     final notesJson = prefs.getString('notes');
     if (notesJson != null) {
       final List<dynamic> notesData = jsonDecode(notesJson);
-      state = notesData.map((data) => NoteModel.fromJson(data)).toList();
+      state = notesData.map((data) {
+        final note = NoteModel.fromJson(data);
+        // Handle the case where 'isFavorite' key is missing
+        return note.copyWith(isFavorite: data['isFavorite'] ?? false);
+      }).toList();
     }
   }
 
@@ -22,6 +26,18 @@ class SavedNotesNotifier extends StateNotifier<List<NoteModel>> {
     final prefs = await SharedPreferences.getInstance();
     final notesJson = jsonEncode(state);
     await prefs.setString('notes', notesJson);
+  }
+
+  void toggleFavorite(NoteModel note) {
+    final updatedNotes = state.map((n) {
+      if (n == note) {
+        return n.copyWith(
+            isFavorite: n.isFavorite == null ? true : !n.isFavorite!);
+      }
+      return n;
+    }).toList();
+    state = updatedNotes;
+    _saveNotes(); // Persist the changes
   }
 
   void addSavedNote(NoteModel note) {

@@ -19,7 +19,9 @@ class AppDrawer extends StatelessWidget {
           DrawerItem(
             icon: 'assets/icons/all_notes.png',
             title: 'All Note',
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+            },
           ),
           DrawerItem(
             icon: 'assets/icons/notebook.png',

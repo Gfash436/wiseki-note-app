@@ -3,9 +3,10 @@ import 'package:wiseki_note_app/src/common_widgets/custom_button.dart';
 import 'package:wiseki_note_app/src/constants/app_text_style/source_serif.dart';
 import 'package:wiseki_note_app/src/constants/colors.dart';
 
-deleteNoteDialog({required BuildContext context, void Function()? deleteNote}) {
+deleteNoteDialog({required BuildContext context, void Function()? delete}) {
   showDialog(
     context: context,
+    barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         shape: RoundedRectangleBorder(
@@ -14,8 +15,8 @@ deleteNoteDialog({required BuildContext context, void Function()? deleteNote}) {
         title: Column(
           children: [
             const Icon(
-              Icons.delete,
-              size: 80,
+              Icons.delete_forever,
+              size: 70,
               color: kRed,
             ),
             const SizedBox(height: 20),
@@ -27,7 +28,8 @@ deleteNoteDialog({required BuildContext context, void Function()? deleteNote}) {
             const SizedBox(height: 30),
             CustomButton(
               onPressed: () {
-                deleteNote?.call();
+                delete?.call();
+                Navigator.pop(dialogContext);
               },
               title: 'Delete Note',
               buttonColor: kRed,
