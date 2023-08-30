@@ -3,11 +3,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
 import 'package:wiseki_note_app/src/splash_screen.dart';
-import 'package:wiseki_note_app/src/utils/note%20preference/note_preference.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotePreferences.init();
   runApp(const ProviderScope(child: MyApp()));
 }
 

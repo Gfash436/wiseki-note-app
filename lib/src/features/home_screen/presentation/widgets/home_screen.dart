@@ -9,6 +9,7 @@ import 'package:wiseki_note_app/src/constants/app_text_style/inter.dart';
 import 'package:wiseki_note_app/src/constants/app_text_style/source_serif.dart';
 import 'package:wiseki_note_app/src/constants/colors.dart';
 import 'package:wiseki_note_app/src/constants/routers.dart';
+import 'package:wiseki_note_app/src/features/home_screen/domain/models/note_model.dart';
 import 'package:wiseki_note_app/src/features/home_screen/presentation/controllers/auth_controllers.dart';
 import 'package:wiseki_note_app/src/features/home_screen/presentation/providers/note_providers.dart';
 import 'package:wiseki_note_app/src/features/home_screen/presentation/widgets/add_new_note.dart';
@@ -17,17 +18,17 @@ import 'package:wiseki_note_app/src/features/home_screen/presentation/widgets/re
 import 'package:wiseki_note_app/src/features/home_screen/presentation/widgets/refactored_widgets/note_tile.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isSearching = false;
   String _searchQuery = '';
+  List<NoteModel> pinnedNotesList = [];
 
-  // Function to generate a random color
   Color _getRandomColor() {
     Random random = Random();
     int red = 200 + random.nextInt(56);
@@ -47,16 +48,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final savedNotes = ref.watch(savedNotesProvider);
     final pinnedNotes = ref.watch(pinnedNotesProvider);
-    _searchQuery.isNotEmpty
-        ? savedNotes
-        : savedNotes
-            .where((note) =>
-                note.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                note.content.toLowerCase().contains(_searchQuery.toLowerCase()))
-            .toList();
+
+    // Update the pinned notes list when pinnedNotesProvider changes
+    pinnedNotesList = pinnedNotes;
+
+    final searchResults = savedNotes.where((note) =>
+        note.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().contains(_searchQuery.toLowerCase()));
+
+    final pinnedSearchResults = pinnedNotes.where((note) =>
+        note.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().contains(_searchQuery.toLowerCase()));
+
     return Scaffold(
       key: _scaffoldKey,
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(), // Replace with your actual AppDrawer
       body: Padding(
         padding: const EdgeInsets.fromLTRB(28, 32, 28, 0),
         child: SafeArea(
@@ -72,6 +78,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   onTap: () {
                     setState(() {
                       _isSearching = !_isSearching;
+                      if (!_isSearching) {
+                        _searchQuery =
+                            ''; // Clear search query when exiting search mode
+                      }
                     });
                   },
                   child: const Icon(
@@ -122,17 +132,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
-                                onTap: () {},
-                                child:
-                                    Image.asset('assets/icons/edit_note.png')),
+                              onTap: () {},
+                              child: Image.asset('assets/icons/edit_note.png'),
+                            ),
                             InkWell(
-                                onTap: () {},
-                                child:
-                                    Image.asset('assets/icons/note_grid.png')),
+                              onTap: () {},
+                              child: Image.asset('assets/icons/note_grid.png'),
+                            ),
                             InkWell(
-                                onTap: () {},
-                                child:
-                                    Image.asset('assets/icons/note_filter.png'))
+                              onTap: () {},
+                              child:
+                                  Image.asset('assets/icons/note_filter.png'),
+                            ),
                           ],
                         ),
                       ),
@@ -151,42 +162,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Expanded(
                 child: SizedBox(
                   height: 400,
-                  child: pinnedNotes.isNotEmpty
+                  child: _isSearching
                       ? ListView.builder(
-                          itemCount: pinnedNotes.length,
+                          itemCount: searchResults.length,
                           itemBuilder: (context, index) {
-                            final note = pinnedNotes[index];
+                            final note = searchResults.elementAt(index);
                             Color randomColor = _getRandomColor();
-                            return NoteTile(
-                              noteTitle: note.title,
-                              noteBody: note.content,
-                              dateTime: note.dateTime,
-                              tileColor: randomColor,
-                              deleteNote: () => deleteNoteDialog(
-                                  context: context,
-                                  delete: () {
-                                    ref
-                                        .read(pinnedNotesProvider.notifier)
-                                        .removePinnedNote(note);
-                                  }),
-                              favoriteNote: () {
-                                ref
-                                    .read(pinnedNotesProvider.notifier)
-                                    .toggleFavorite(note);
-                              },
-                              favoriteIcon: note.isFavorite == true
-                                  ? Icons.favorite
-                                  : null,
-                            );
+
+                            final isInPinnedNotes = pinnedNotes.any(
+                                (pinnedNote) => pinnedNote.title == note.title);
+                            if (isInPinnedNotes == false) {
+                              print('Item not available');
+                            } else {
+                              return NoteTile(
+                                noteTitle: note.title,
+                                noteBody: note.content,
+                                dateTime: note.dateTime,
+                                tileColor: randomColor,
+                                deleteNote: () => deleteNoteDialog(
+                                    context: context,
+                                    delete: () {
+                                      ref
+                                          .read(pinnedNotesProvider.notifier)
+                                          .removePinnedNote(note);
+                                    }),
+                                favoriteNote: () {
+                                  ref
+                                      .read(pinnedNotesProvider.notifier)
+                                      .toggleFavorite(note);
+                                },
+                                favoriteIcon: note.isFavorite == true
+                                    ? Icons.favorite
+                                    : null,
+                              );
+                            }
                           },
                         )
-                      : Center(
-                          child: Text(
-                            'List is empty',
-                            style: AppStyleSourceSerif4.kFontW7
-                                .copyWith(color: kPrimary, fontSize: 25),
-                          ),
-                        ),
+                      : pinnedSearchResults.isNotEmpty
+                          ? ListView.builder(
+                              itemCount: pinnedSearchResults.length,
+                              itemBuilder: (context, index) {
+                                final note =
+                                    pinnedSearchResults.elementAt(index);
+                                Color randomColor = _getRandomColor();
+                                return NoteTile(
+                                  noteTitle: note.title,
+                                  noteBody: note.content,
+                                  dateTime: note.dateTime,
+                                  tileColor: randomColor,
+                                  deleteNote: () => deleteNoteDialog(
+                                      context: context,
+                                      delete: () {
+                                        ref
+                                            .read(pinnedNotesProvider.notifier)
+                                            .removePinnedNote(note);
+                                      }),
+                                  favoriteNote: () {
+                                    ref
+                                        .read(pinnedNotesProvider.notifier)
+                                        .toggleFavorite(note);
+                                  },
+                                  favoriteIcon: note.isFavorite == true
+                                      ? Icons.favorite
+                                      : null,
+                                );
+                              },
+                            )
+                          : Center(
+                              child: Text(
+                                'List is empty',
+                                style: AppStyleSourceSerif4.kFontW7
+                                    .copyWith(color: kPrimary, fontSize: 25),
+                              ),
+                            ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -217,45 +265,84 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Expanded(
                 child: SizedBox(
                   height: 200,
-                  child: savedNotes.isNotEmpty
+                  child: _isSearching
                       ? ListView.builder(
-                          itemCount: savedNotes.length,
+                          itemCount: searchResults.length,
                           itemBuilder: (context, index) {
-                            final note = savedNotes[index];
-
+                            final note = searchResults.elementAt(index);
                             Color randomColor = _getRandomColor();
-                            return NoteTile(
-                              noteTitle: note.title,
-                              noteBody: note.content,
-                              dateTime: note.dateTime,
-                              tileColor: randomColor,
-                              deleteNote: () {
-                                deleteNoteDialog(
+
+                            final isInSavededNotes = savedNotes.any(
+                                (savedNotes) => savedNotes.title == note.title);
+                            if (isInSavededNotes == false) {
+                              print('Item not available');
+                            } else {
+                              return NoteTile(
+                                noteTitle: note.title,
+                                noteBody: note.content,
+                                dateTime: note.dateTime,
+                                tileColor: randomColor,
+                                deleteNote: () {
+                                  deleteNoteDialog(
                                     context: context,
                                     delete: () {
                                       ref
                                           .read(savedNotesProvider.notifier)
                                           .removeSavedNote(note);
-                                    });
-                              },
-                              favoriteNote: () {
-                                ref
-                                    .read(savedNotesProvider.notifier)
-                                    .toggleFavorite(note);
-                              },
-                              favoriteIcon: note.isFavorite == true
-                                  ? Icons.favorite
-                                  : null,
-                            );
+                                    },
+                                  );
+                                },
+                                favoriteNote: () {
+                                  ref
+                                      .read(savedNotesProvider.notifier)
+                                      .toggleFavorite(note);
+                                },
+                                favoriteIcon: note.isFavorite == true
+                                    ? Icons.favorite
+                                    : null,
+                              );
+                            }
                           },
                         )
-                      : Center(
-                          child: Text(
-                            'List is empty',
-                            style: AppStyleSourceSerif4.kFontW7
-                                .copyWith(color: kPrimary, fontSize: 25),
-                          ),
-                        ),
+                      : savedNotes.isNotEmpty
+                          ? ListView.builder(
+                              itemCount: savedNotes.length,
+                              itemBuilder: (context, index) {
+                                final note = savedNotes[index];
+                                Color randomColor = _getRandomColor();
+                                return NoteTile(
+                                  noteTitle: note.title,
+                                  noteBody: note.content,
+                                  dateTime: note.dateTime,
+                                  tileColor: randomColor,
+                                  deleteNote: () {
+                                    deleteNoteDialog(
+                                      context: context,
+                                      delete: () {
+                                        ref
+                                            .read(savedNotesProvider.notifier)
+                                            .removeSavedNote(note);
+                                      },
+                                    );
+                                  },
+                                  favoriteNote: () {
+                                    ref
+                                        .read(savedNotesProvider.notifier)
+                                        .toggleFavorite(note);
+                                  },
+                                  favoriteIcon: note.isFavorite == true
+                                      ? Icons.favorite
+                                      : null,
+                                );
+                              },
+                            )
+                          : Center(
+                              child: Text(
+                                'List is empty',
+                                style: AppStyleSourceSerif4.kFontW7
+                                    .copyWith(color: kPrimary, fontSize: 25),
+                              ),
+                            ),
                 ),
               ),
             ],
